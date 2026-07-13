@@ -5,6 +5,7 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
+        "pythonVersion": "3.9",
         "setupFiles": ["setup.py"]
       }
     }
@@ -12,6 +13,10 @@
   "routes": [
     {
       "src": "/api/webhook",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/api/health",
       "dest": "/api/index.py"
     },
     {

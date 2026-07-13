@@ -2,20 +2,33 @@ from flask import Flask, request, jsonify
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, CommandHandler, ContextTypes
 import os
-import json
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
+# ============================================================
+# 🔑 Read tokens from environment variables
+# ============================================================
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
-if not BOT_TOKEN:
-    raise ValueError("No BOT_TOKEN found in environment variables!")
+WEB_APP_URL = os.environ.get("WEB_APP_URL", "https://your-frontend-app.vercel.app/")
 
-WEB_APP_URL = os.environ.get("WEB_APP_URL")
-if not WEB_APP_URL:
-    raise ValueError("No WEB_APP_URL found in environment variables!")
+logger.info(f"BOT_TOKEN set: {bool(BOT_TOKEN)}")
+logger.info(f"WEB_APP_URL: {WEB_APP_URL}")
+
+# ============================================================
+# Bot Commands
+# ============================================================
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send welcome message when /start is issued."""
+    if not BOT_TOKEN:
+        await update.message.reply_text("⚠️ Bot is not properly configured.")
+        return
+    
     web_app_button = InlineKeyboardButton(
         "🚀 Open Web App", 
         web_app=WebAppInfo(url=WEB_APP_URL)
@@ -54,20 +67,36 @@ async def about_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     )
     await update.message.reply_text(about_text)
 
+# ============================================================
+# Routes
+# ============================================================
+
 @app.route('/', methods=['GET'])
 def index():
+    """Root endpoint to check if bot is running."""
     return jsonify({
-        "status": "running",
-        "message": "Bot is active!",
-        "webhook": "/api/webhook"
+        "status": "running" if BOT_TOKEN else "error",
+        "message": "Bot is active!" if BOT_TOKEN else "Bot token not configured!",
+        "webhook": "/api/webhook",
+        "bot_token_set": bool(BOT_TOKEN),
+        "web_app_url": WEB_APP_URL
     })
 
 @app.route('/api/webhook', methods=['POST'])
 async def webhook():
     """Handle incoming webhook requests."""
+    if not BOT_TOKEN:
+        logger.error("BOT_TOKEN not configured!")
+        return jsonify({"status": "error", "message": "Bot token not configured"}), 500
+    
     try:
-        # Get the request body
         data = request.get_json()
+        
+        if not data:
+            logger.warning("No data received")
+            return jsonify({"status": "error", "message": "No data received"}), 400
+        
+        logger.info("Received webhook update")
         
         # Create the Application
         application = Application.builder().token(BOT_TOKEN).build()
@@ -80,10 +109,21 @@ async def webhook():
         # Process the update
         await application.process_update(Update.de_json(data, application.bot))
         
+        logger.info("Webhook processed successfully")
         return jsonify({"status": "ok"}), 200
+        
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/api/health', methods=['GET'])
+def health():
+    """Health check endpoint."""
+    return jsonify({
+        "status": "healthy",
+        "bot_token_set": bool(BOT_TOKEN),
+        "web_app_url": WEB_APP_URL
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
