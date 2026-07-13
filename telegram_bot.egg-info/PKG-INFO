@@ -1,9 +1,0 @@
-Metadata-Version: 2.4
-Name: telegram-bot
-Version: 1.0.0
-Requires-Python: >=3.8
-Requires-Dist: Flask==2.3.3
-Requires-Dist: python-telegram-bot==20.7
-Requires-Dist: requests==2.31.0
-Dynamic: requires-dist
-Dynamic: requires-python
