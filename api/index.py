@@ -11,6 +11,8 @@ if not BOT_TOKEN:
     raise ValueError("No BOT_TOKEN found in environment variables!")
 
 WEB_APP_URL = os.environ.get("WEB_APP_URL")
+if not WEB_APP_URL:
+    raise ValueError("No WEB_APP_URL found in environment variables!")
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Send welcome message when /start is issued."""
