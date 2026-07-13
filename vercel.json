@@ -3,13 +3,20 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "setupFiles": ["setup.py"]
+      }
     }
   ],
   "routes": [
     {
+      "src": "/api/webhook",
+      "dest": "/api/index.py"
+    },
+    {
       "src": "/(.*)",
-      "dest": "api/index.py"
+      "dest": "/api/index.py"
     }
   ]
 }
