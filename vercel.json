@@ -1,18 +1,23 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "pythonVersion": "3.9",
-        "installCommand": "pip install -e ."
-      }
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.9",
+      "maxDuration": 10
     }
-  ],
+  },
+  "build": {
+    "env": {
+      "PYTHON_VERSION": "3.9"
+    }
+  },
   "routes": [
     {
       "src": "/api/webhook",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/api/health",
       "dest": "/api/index.py"
     },
     {
