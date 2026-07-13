@@ -6,17 +6,13 @@
       "use": "@vercel/python",
       "config": {
         "pythonVersion": "3.9",
-        "setupFiles": ["setup.py"]
+        "installCommand": "pip install -e ."
       }
     }
   ],
   "routes": [
     {
       "src": "/api/webhook",
-      "dest": "/api/index.py"
-    },
-    {
-      "src": "/api/health",
       "dest": "/api/index.py"
     },
     {
