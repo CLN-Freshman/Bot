@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const WEBHOOK_URL = 'https://your-app.vercel.app/webhook';
+const WEBHOOK_URL = 'https://cln-bot-lilac.vercel.app/webhook';
 
 bot.telegram.setWebhook(WEBHOOK_URL).then(() => {
   console.log('Webhook set successfully!');
