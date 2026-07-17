@@ -10,13 +10,49 @@ const port = process.env.PORT || 3000;
 // Initialize bot with token
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+const WEBAPP_URL = process.env.WEBAPP_URL;
+
 // Bot commands
 bot.command('start', (ctx) => {
-  ctx.reply('Welcome! I am your Telegram bot. Here are the commands:\n/help - Show help\n/ping - Check if bot is alive\n/echo <text> - Echo your message');
+  const welcomeMessage = `👋 Welcome to Our Bot!
+
+We're excited to have you here. Click the button below to explore our powerful web app.
+
+✨ Features include:
+• Interactive dashboard
+• Real-time updates
+• And much more`;
+
+  ctx.reply(welcomeMessage, {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: '🚀 Open Web App',
+            web_app: {
+              url: WEBAPP_URL
+            }
+          }
+        ],
+        [
+          {
+            text: '❓ Help',
+            callback_data: 'help'
+          }
+        ]
+      ]
+    }
+  });
+});
+
+// Handle callback queries
+bot.action('help', (ctx) => {
+  ctx.answerCbQuery();
+  ctx.reply('Available commands:\n/start - Start the bot\n/help - Show this help\n/ping - Check if bot is alive\n/echo <text> - Echo your message\n/open - Open the web app');
 });
 
 bot.command('help', (ctx) => {
-  ctx.reply('Available commands:\n/start - Start the bot\n/help - Show this help\n/ping - Check if bot is alive\n/echo <text> - Echo your message');
+  ctx.reply('Available commands:\n/start - Start the bot\n/help - Show this help\n/ping - Check if bot is alive\n/echo <text> - Echo your message\n/open - Open the web app');
 });
 
 bot.command('ping', (ctx) => {
@@ -30,6 +66,24 @@ bot.command('echo', (ctx) => {
     return;
   }
   ctx.reply(text);
+});
+
+// Command to open web app
+bot.command('open', (ctx) => {
+  ctx.reply('Click the button below to open the web app:', {
+    reply_markup: {
+      inline_keyboard: [
+        [
+          {
+            text: '🚀 Open Web App',
+            web_app: {
+              url: WEBAPP_URL
+            }
+          }
+        ]
+      ]
+    }
+  });
 });
 
 // Handle any text message
