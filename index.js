@@ -10,10 +10,12 @@ const port = process.env.PORT || 3000;
 // Initialize bot with token
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const WEBAPP_URL = process.env.WEBAPP_URL;
+const WEBAPP_URL = process.env.WEBAPP_URL || 'https://your-webapp-url.vercel.app';
 
 // Bot commands
 bot.command('start', (ctx) => {
+  console.log('Start command received from:', ctx.from.username || ctx.from.id);
+  
   const welcomeMessage = `👋 Welcome to Our Bot!
 
 We're excited to have you here. Click the button below to explore our powerful web app.
@@ -42,6 +44,8 @@ We're excited to have you here. Click the button below to explore our powerful w
         ]
       ]
     }
+  }).catch(err => {
+    console.error('Error sending start message:', err);
   });
 });
 
@@ -91,10 +95,18 @@ bot.on('text', (ctx) => {
   ctx.reply(`You said: ${ctx.message.text}`);
 });
 
-// Webhook endpoint for Vercel
+// Webhook endpoint for Vercel - FIXED VERSION
 app.use(express.json());
-app.post('/webhook', (req, res) => {
-  bot.handleUpdate(req.body, res);
+
+app.post('/webhook', async (req, res) => {
+  try {
+    console.log('Webhook received:', req.body.message?.text || 'No text');
+    await bot.handleUpdate(req.body);
+    res.sendStatus(200);
+  } catch (error) {
+    console.error('Error handling webhook:', error);
+    res.sendStatus(500);
+  }
 });
 
 // Health check endpoint
