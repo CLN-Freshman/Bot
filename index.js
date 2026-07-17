@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 // Initialize bot with token
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const WEBAPP_URL = process.env.WEBAPP_URL;
+const WEBAPP_URL = process.env.WEBAPP_URL || 'https://cln-freshmen.vercel.app/';
 
 // Bot commands
 bot.command('start', (ctx) => {
